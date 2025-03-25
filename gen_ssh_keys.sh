@@ -67,7 +67,12 @@ process_account() {
     log INFO "이미 존재함: $keyname"
     if $copy_key; then
       log INFO "$hostname 에 공개키 복사 시도 중..."
-      ssh-copy-id -i "$keypath.pub" "$USER@$hostname"
+      # ssh-copy-id는 Git 서버에는 적용되지 않으므로 아래는 일반 서버에만 해당
+      if [[ "$hostname" != github.* && "$hostname" != gitlab.* ]]; then
+        ssh-copy-id -i "$keypath.pub" "$USER@$hostname"
+      else
+        log WARN "[$hostname] 은 ssh-copy-id 대상이 아님. 공개키를 웹에서 직접 등록하세요."
+      fi
     fi
   else
     if $check_only; then
